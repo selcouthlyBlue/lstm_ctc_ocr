@@ -1,20 +1,16 @@
-import sys
-import os
-import collections
 import argparse
 import pprint
-import numpy as np
-import pdb
 import sys
 import os.path
+
+from lib.lstm.test import test_net
+from lib.lstm.config import cfg, cfg_from_file, get_output_dir, get_log_dir
+from lib.networks.factory import get_network
+from easydict import EasyDict as Edict
 
 this_dir = os.path.dirname(__file__)
 sys.path.insert(0, this_dir + '/..')
 
-from lib.lstm.test import test_net
-from lib.lstm.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_log_dir
-from lib.networks.factory import get_network
-from easydict import EasyDict as edict
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a FCN network')
@@ -37,6 +33,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 if __name__ == '__main__':
     args = parse_args()
 
@@ -51,11 +48,11 @@ if __name__ == '__main__':
     print('Using config:')
     pprint.pprint(cfg)
 
-    output_network_name=args.network_name.split('_')[-1]
-    imgdb = edict({'path':'./data/train.tfrecords','name':'lstm_'+output_network_name,
-                   'val_path':'./data/val.tfrecords' })
+    output_network_name = args.network_name.split('_')[-1]
+    imgdb = Edict({'path': './data/train.tfrecords', 'name': 'lstm_' + output_network_name,
+                   'val_path': './data/val.tfrecords'})
 
-    output_dir = get_output_dir(imgdb, None)
+    output_dir = get_output_dir(None)
     log_dir = get_log_dir(imgdb)
     print(('Output will be saved to `{:s}`'.format(output_dir)))
     print(('Logs will be saved to `{:s}`'.format(log_dir)))
@@ -67,7 +64,7 @@ if __name__ == '__main__':
     print(('Use network `{:s}` in training'.format(args.network_name)))
 
     test_net(network, imgdb,
-              testDir= './data/val/', #'data/demo'
-              output_dir=output_dir,
-              log_dir=log_dir,
-              restore=bool(int(args.restore)))
+             test_dir='./data/val/',  # 'data/demo'
+             output_dir=output_dir,
+             log_dir=log_dir,
+             restore=bool(int(args.restore)))

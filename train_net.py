@@ -1,18 +1,17 @@
 import argparse
 import pprint
 import numpy as np
-import pdb
 import sys
 import os.path
-
-this_dir = os.path.dirname(__file__)
-sys.path.insert(0, this_dir + '/..')
 
 from lib.lstm.train import train_net
 from lib.lstm.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_log_dir
 from lib.networks.factory import get_network
-from easydict import EasyDict as edict
-import matplotlib
+from easydict import EasyDict as Edict
+
+this_dir = os.path.dirname(__file__)
+sys.path.insert(0, this_dir + '/..')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a lstm network')
@@ -47,6 +46,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 # os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 if __name__ == '__main__':
     args = parse_args()
@@ -66,11 +66,11 @@ if __name__ == '__main__':
         np.random.seed(cfg.RNG_SEED)
 
     # imgdb = edict({'path':'data/lstm_voc/pascal_augmented_train.tfrecords','name':'pascal_augmentted'})
-    output_network_name=args.network_name.split('_')[-1]
-    imgdb = edict({'path':'./data/train_4_6.tfrecords','name':'lstm_'+output_network_name,
-                   'val_path':'./data/val.tfrecords' })
+    output_network_name = args.network_name.split('_')[-1]
+    imgdb = Edict({'path': './data/train_4_6.tfrecords', 'name': 'lstm_' + output_network_name,
+                   'val_path': './data/val.tfrecords'})
 
-    output_dir = get_output_dir(imgdb, None)
+    output_dir = get_output_dir(None)
     log_dir = get_log_dir(imgdb)
     print(('Output will be saved to `{:s}`'.format(output_dir)))
     print(('Logs will be saved to `{:s}`'.format(log_dir)))

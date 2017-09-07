@@ -6,21 +6,23 @@
 # --------------------------------------------------------
 
 """Factory method for easily getting imdbs by name."""
+from .lstmTrain import lstmTrain
+from .lstmTest import lstmTest
 
 __sets = {}
-from .LSTM_train import LSTM_train
-from .LSTM_test import LSTM_test
+
+
 def get_network(name):
     """Get a network by name."""
     if name.split('_')[0] == 'LSTM':
         if name.split('_')[1] == 'train':
-            return LSTM_train()
+            return lstmTrain()
         elif name.split('_')[1] == 'test':
-            return LSTM_test()
+            return lstmTest()
         else:
             raise KeyError('Unknown dataset: {}'.format(name))
+
 
 def list_networks():
     """List all registered imdbs."""
     return list(__sets.keys())
-
