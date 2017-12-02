@@ -3,31 +3,18 @@ import tensorflow as tf
 
 from lib.lstm.config import cfg
 from lib.lstm.utils.training import *
-import warpctc_tensorflow
 
 DEFAULT_PADDING = 'SAME'
 
-def incluude_original(dec):
-    """ Meta decorator, which make the original function callable (via f._original() )"""
-    def meta_decorator(f):
-        decorated = dec(f)
-        decorated._original = f
-        return decorated
-    return meta_decorator
-
-#@include_original
 def layer(op):
     def layer_decorated(self, *args, **kwargs):
-        # Automatically set a name if not provided.
         name = kwargs.setdefault('name', self.get_unique_name(op.__name__))
-        # Figure out the layer inputs.
         if len(self.inputs)==0:
             raise RuntimeError('No input variables found for layer %s.'%name)
         elif len(self.inputs)==1:
             layer_input = self.inputs[0]
         else:
             layer_input = list(self.inputs)
-        # Perform the operation and get the output.
         layer_output = op(self, layer_input, *args, **kwargs)
         # Add to layer LUT.
         self.layers[name] = layer_output
@@ -630,17 +617,18 @@ class Network(object):
         time_step_batch = self.get_output('time_step_len')
         logits_batch = self.get_output('logits')
         labels = self.get_output('labels')
-        label_len = self.get_output('labels_len')
 
-        ctc_loss = warpctc_tensorflow.ctc(activations=logits_batch,flat_labels=labels,
-                                               label_lengths=label_len,input_lengths=time_step_batch)
+        ctc_loss = tf.nn.ctc_loss(labels=labels, inputs=logits_batch, sequence_length=time_step_batch, ignore_longer_outputs_than_inputs=True)
         loss = tf.reduce_mean(ctc_loss)
         decoded, log_prob = tf.nn.ctc_beam_search_decoder(logits_batch, time_step_batch, merge_repeated=True)
         dense_decoded = tf.cast(tf.sparse_tensor_to_dense(decoded[0], default_value=0), tf.int32)
 
-        # add regularizer
+        loss = self._regularize(loss)
+
+        return loss,dense_decoded
+
+    def _regularize(self, loss):
         if cfg.TRAIN.WEIGHT_DECAY > 0:
             regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
             loss = tf.add_n(regularization_losses) + loss
-
-        return loss,dense_decoded
+        return loss

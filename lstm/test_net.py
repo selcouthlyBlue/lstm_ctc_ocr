@@ -52,8 +52,8 @@ if __name__ == '__main__':
     pprint.pprint(cfg)
 
     output_network_name=args.network_name.split('_')[-1]
-    imgdb = edict({'path':'./data/train.tfrecords','name':'lstm_'+output_network_name,
-                   'val_path':'./data/val.tfrecords' })
+    imgdb = edict({'path':'./data/train.tfrecords','name':'lstm_'+ output_network_name,
+                   'val_path':'./data/val.tfrecords'})
 
     output_dir = get_output_dir(imgdb, None)
     log_dir = get_log_dir(imgdb)

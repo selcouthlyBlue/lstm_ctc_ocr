@@ -1,5 +1,5 @@
 import numpy as np
-import os,re
+import os
 import tensorflow as tf
 from ..lstm.config import cfg
 from lib.lstm.utils.timer import Timer
@@ -134,7 +134,6 @@ class SolverWrapper(object):
                         self.net.data:          img_Batch,
                         self.net.labels:        label_Batch,
                         self.net.time_step_len: np.array(time_step_Batch),
-                        self.net.labels_len:    np.array(label_len_Batch),
                         self.net.keep_prob:     0.5
                     }
 
@@ -160,16 +159,14 @@ class SolverWrapper(object):
                         val_label_Batch = self.mergeLabel(val_labels_Batch,ignore = 0)
 
                         feed_dict = {
-                            self.net.data :          val_img_Batch,
-                            self.net.labels :         val_label_Batch,
-                            self.net.time_step_len : np.array(val_time_step_Batch),
-                            self.net.labels_len :     np.array(val_label_len_Batch),
+                            self.net.data:          val_img_Batch,
+                            self.net.labels:         val_label_Batch,
+                            self.net.time_step_len: np.array(val_time_step_Batch),
                             self.net.keep_prob:      1.0
                         }
 
-                        # fetch_list = [dense_decoded]
                         org = val_labels_Batch
-                        res =  sess.run(fetches=dense_decoded, feed_dict=feed_dict)
+                        res = sess.run(fetches=dense_decoded, feed_dict=feed_dict)
                         acc = accuracy_calculation(org,res,ignore_value=0)
                         print('accuracy: {:.5f}'.format(acc))
 
